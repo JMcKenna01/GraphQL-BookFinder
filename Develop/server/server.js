@@ -3,6 +3,7 @@ const { ApolloServer } = require('apollo-server-express');
 const { typeDefs, resolvers } = require('./schemas');
 const path = require('path');
 const db = require('./config/connection');
+const { authMiddleware } = require('./utils/auth'); // Ensure the path is correct based on your project structure
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -15,11 +16,20 @@ if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/build')));
 }
 
+// Catch-all route to serve the React front-end in case of direct navigation
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/build/index.html'));
+});
+
 db.once('open', () => {
   const server = new ApolloServer({
     typeDefs,
     resolvers,
-    context: ({ req }) => ({ req })
+    context: async ({ req }) => {
+      // Updated to use the authMiddleware to add user info to the req object
+      const auth = await authMiddleware({ req });
+      return { req: auth }; // This makes user info available in your GraphQL resolvers
+    }
   });
 
   server.start().then(() => {
