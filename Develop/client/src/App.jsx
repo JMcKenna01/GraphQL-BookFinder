@@ -1,34 +1,22 @@
-// src/App.jsx
 import React from 'react';
 import './App.css';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client';
+import { ApolloClient, InMemoryCache } from '@apollo/client';
 import Navbar from './components/Navbar';
-import LoginForm from './components/LoginForm';
-import SignupForm from './components/SignupForm';
-import UserProfile from './components/UserProfile'; // Ensure you have this component as specified
+import { Outlet } from 'react-router-dom'; // Import Outlet for nested routes
 
-// Initialize Apollo Client
 const client = new ApolloClient({
-  uri: 'http://localhost:4000/graphql', // Adjust this URI to match your GraphQL server endpoint
+  uri: 'http://localhost:3001/graphql',
   cache: new InMemoryCache(),
 });
 
 function App() {
   return (
     <ApolloProvider client={client}>
-      <BrowserRouter>
-        <div className="App">
-          <Navbar />
-          <Routes>
-            <Route path="/" element={<div>Home</div>} /> {/* Placeholder for a Home component */}
-            <Route path="/login" element={<LoginForm />} />
-            <Route path="/signup" element={<SignupForm />} />
-            <Route path="/profile" element={<UserProfile />} />
-            {/* Add additional routes as necessary */}
-          </Routes>
-        </div>
-      </BrowserRouter>
+      <div className="App">
+        <Navbar />
+        <Outlet /> {/* Renders the currently matched child route component. */}
+      </div>
     </ApolloProvider>
   );
 }
